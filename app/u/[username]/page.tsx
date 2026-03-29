@@ -114,7 +114,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
         <SocialLinksList links={profile.socialLinks} />
 
-        <footer className="terminal-section text-xs text-muted">
+        <footer className="terminal-section text-xs text-[rgb(var(--color-muted)/0.72)]">
           PayMe is a profile and presentation layer. It does not process payments or hold funds.
         </footer>
       </div>
