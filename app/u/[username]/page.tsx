@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
+import QRCode from "qrcode";
 import { db } from "@/lib/db";
-import { THEME_TOKENS } from "@/lib/constants";
+import { SUPPORTS_QR, THEME_TOKENS } from "@/lib/constants";
+import { buildPaymentUri } from "@/lib/payment-uri";
 import { ProfileHeader } from "@/components/public/profile-header";
 import { PaymentMethodCard } from "@/components/public/payment-method-card";
 import { SocialLinksList } from "@/components/public/social-links-list";
@@ -54,6 +56,23 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     notFound();
   }
 
+  const methodsWithQr = await Promise.all(
+    profile.paymentMethods.map(async (method) => {
+      if (!SUPPORTS_QR.has(method.type)) {
+        return { ...method, qrPayload: null, qrDataUrl: null };
+      }
+
+      const qrPayload = buildPaymentUri(method.type, method.value, method.network);
+
+      try {
+        const qrDataUrl = await QRCode.toDataURL(qrPayload, { margin: 1, width: 280 });
+        return { ...method, qrPayload, qrDataUrl };
+      } catch {
+        return { ...method, qrPayload, qrDataUrl: null };
+      }
+    })
+  );
+
   const tokens = THEME_TOKENS[profile.themeId] ?? THEME_TOKENS["terminal-dark"];
 
   return (
@@ -86,7 +105,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
             </p>
           ) : (
             <div className="space-y-3">
-              {profile.paymentMethods.map((method) => (
+              {methodsWithQr.map((method) => (
                 <PaymentMethodCard key={method.id} method={method} />
               ))}
             </div>

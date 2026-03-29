@@ -37,7 +37,7 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[120] grid place-items-center bg-black/80 p-4 md:p-6"
+      className="fixed inset-0 z-[220] grid place-items-center bg-black/80 p-4 md:p-6"
       onClick={onClose}
       role="presentation"
     >

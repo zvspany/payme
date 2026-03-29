@@ -1,15 +1,17 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import { PaymentMethod, PaymentMethodType } from "@prisma/client";
-import { PAYMENT_METHOD_LABELS, SUPPORTS_QR } from "@/lib/constants";
-import { buildPaymentUri } from "@/lib/payment-uri";
+import { PAYMENT_METHOD_LABELS } from "@/lib/constants";
 import { CopyButton } from "@/components/public/copy-button";
-import { QrModal } from "@/components/public/qr-modal";
 
 type PublicPaymentMethod = Pick<
   PaymentMethod,
   "id" | "type" | "label" | "value" | "network" | "description" | "isVisible"
->;
+> & {
+  qrPayload: string | null;
+  qrDataUrl: string | null;
+};
 
 type PaymentMethodCardProps = {
   method: PublicPaymentMethod;
@@ -26,8 +28,7 @@ function isHttpUrl(value: string) {
 
 export function PaymentMethodCard({ method }: PaymentMethodCardProps) {
   const typeLabel = PAYMENT_METHOD_LABELS[method.type as PaymentMethodType];
-  const qrPayload = buildPaymentUri(method.type, method.value, method.network);
-  const linkTarget = isHttpUrl(qrPayload) ? qrPayload : null;
+  const linkTarget = method.qrPayload && isHttpUrl(method.qrPayload) ? method.qrPayload : null;
 
   return (
     <article className="method-card">
@@ -44,7 +45,20 @@ export function PaymentMethodCard({ method }: PaymentMethodCardProps) {
 
         <div className="method-actions">
           <CopyButton value={method.value} />
-          {SUPPORTS_QR.has(method.type) ? <QrModal title={`${method.label} QR`} payload={qrPayload} /> : null}
+          {method.qrPayload ? (
+            <details className="method-qr-details">
+              <summary className="method-action">QR</summary>
+              <div className="method-qr-panel">
+                <p className="method-qr-title">{method.label} QR</p>
+                {method.qrDataUrl ? (
+                  <img src={method.qrDataUrl} alt={`${method.label} QR code`} className="method-qr-image" />
+                ) : (
+                  <p className="text-xs text-muted">Could not generate QR code for this value.</p>
+                )}
+                <p className="method-qr-payload">{method.qrPayload}</p>
+              </div>
+            </details>
+          ) : null}
           {linkTarget ? (
             <a href={linkTarget} target="_blank" rel="noreferrer" className="method-action">
               Open

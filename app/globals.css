@@ -244,6 +244,57 @@ select.ui-control {
   background: rgb(var(--color-panel) / 1);
 }
 
+.method-qr-details {
+  position: relative;
+}
+
+.method-qr-details > summary {
+  list-style: none;
+}
+
+.method-qr-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.method-qr-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(22rem, 86vw);
+  border: 1px solid rgb(var(--color-border) / 0.9);
+  border-radius: 8px;
+  background: rgb(var(--color-panel) / 0.98);
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  z-index: 70;
+}
+
+.method-qr-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.method-qr-image {
+  width: 220px;
+  height: 220px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px;
+}
+
+.method-qr-payload {
+  font-size: 12px;
+  line-height: 1.5;
+  color: rgb(var(--color-muted));
+  word-break: break-all;
+  max-height: 110px;
+  overflow-y: auto;
+}
+
 .dashboard-action {
   min-height: 38px;
   padding: 8px 12px;
