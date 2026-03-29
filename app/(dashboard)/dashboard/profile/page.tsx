@@ -26,7 +26,6 @@ export default async function DashboardProfilePage() {
           username: profile?.username ?? "",
           displayName: profile?.displayName ?? "",
           bio: profile?.bio ?? "",
-          avatarUrl: profile?.avatarUrl ?? "",
           themeId: profile?.themeId ?? DEFAULT_THEME_ID,
           isPublic: profile?.isPublic ?? true
         }}

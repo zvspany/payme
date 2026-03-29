@@ -8,7 +8,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { DEFAULT_THEME_ID } from "@/lib/constants";
 import { requireCurrentUser } from "@/lib/session";
-import { normalizeUsername, safeUrl, sanitizeOptionalPlainText, sanitizePlainText } from "@/lib/sanitize";
+import { normalizeUsername, sanitizeOptionalPlainText, sanitizePlainText } from "@/lib/sanitize";
 import { profileSchema } from "@/lib/validators/profile";
 
 export type ActionResult = {
@@ -81,12 +81,7 @@ export async function updateProfileAction(formData: FormData): Promise<ActionRes
   const currentUsername = user.profile?.username;
   const existingAvatarUrl = user.profile?.avatarUrl ?? null;
   const avatarFile = formData.get("avatarFile");
-  const rawAvatarUrl = String(formData.get("avatarUrl") ?? "");
-  const sanitizedAvatarUrl = rawAvatarUrl.startsWith(AVATAR_WEB_PREFIX)
-    ? rawAvatarUrl
-    : (safeUrl(rawAvatarUrl) ?? "");
-
-  let nextAvatarUrl = sanitizedAvatarUrl;
+  let nextAvatarUrl = existingAvatarUrl ?? "";
   let uploadedAvatarUrl: string | null = null;
 
   if (avatarFile instanceof File && avatarFile.size > 0) {
@@ -163,5 +158,38 @@ export async function updateProfileAction(formData: FormData): Promise<ActionRes
     }
 
     return { success: false, message: "Could not update profile" };
+  }
+}
+
+export async function resetAvatarAction(): Promise<ActionResult> {
+  const user = await requireCurrentUser();
+  const currentUsername = user.profile?.username;
+  const existingAvatarUrl = user.profile?.avatarUrl ?? null;
+
+  if (!user.profile) {
+    return { success: false, message: "Profile not found" };
+  }
+
+  if (!existingAvatarUrl) {
+    return { success: true, message: "Avatar is already empty" };
+  }
+
+  try {
+    await db.profile.update({
+      where: { userId: user.id },
+      data: { avatarUrl: null }
+    });
+
+    await deleteOldUploadedAvatar(existingAvatarUrl);
+
+    if (currentUsername) {
+      revalidatePath(`/u/${currentUsername}`);
+    }
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/profile");
+
+    return { success: true, message: "Avatar reset" };
+  } catch {
+    return { success: false, message: "Could not reset avatar" };
   }
 }

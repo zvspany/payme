@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useTransition } from "react";
-import { updateProfileAction } from "@/actions/profile";
+import { resetAvatarAction, updateProfileAction } from "@/actions/profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -18,7 +18,6 @@ type ProfileFormProps = {
     username: string;
     displayName: string;
     bio: string;
-    avatarUrl: string;
     themeId: string;
     isPublic: boolean;
   };
@@ -33,10 +32,22 @@ export function ProfileForm({ initialValues, themes }: ProfileFormProps) {
   const [username, setUsername] = useState(initialValues.username);
   const [displayName, setDisplayName] = useState(initialValues.displayName);
   const [bio, setBio] = useState(initialValues.bio);
-  const [avatarUrl, setAvatarUrl] = useState(initialValues.avatarUrl);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [themeId, setThemeId] = useState(initialValues.themeId);
   const [isPublic, setIsPublic] = useState(initialValues.isPublic);
+
+  function handleResetAvatar() {
+    setMessage(null);
+
+    startTransition(async () => {
+      const result = await resetAvatarAction();
+      setMessage(result.message);
+      setIsError(!result.success);
+      if (result.success) {
+        setAvatarFile(null);
+      }
+    });
+  }
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -46,7 +57,6 @@ export function ProfileForm({ initialValues, themes }: ProfileFormProps) {
     formData.set("username", username);
     formData.set("displayName", displayName);
     formData.set("bio", bio);
-    formData.set("avatarUrl", avatarUrl);
     if (avatarFile) {
       formData.set("avatarFile", avatarFile);
     }
@@ -103,16 +113,17 @@ export function ProfileForm({ initialValues, themes }: ProfileFormProps) {
           onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)}
         />
       </label>
-
-      <label className="space-y-2 text-sm">
-        <span className="form-label">Avatar URL</span>
-        <Input
-          type="url"
-          placeholder="https://..."
-          value={avatarUrl}
-          onChange={(event) => setAvatarUrl(event.target.value)}
-        />
-      </label>
+      <div style={{ marginTop: 16, marginBottom: 20 }}>
+        <Button
+          type="button"
+          variant="secondary"
+          className="dashboard-action min-h-11 px-5"
+          disabled={isPending}
+          onClick={handleResetAvatar}
+        >
+          Reset avatar
+        </Button>
+      </div>
 
       <label className="space-y-2 text-sm">
         <span className="form-label">Theme</span>
