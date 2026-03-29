@@ -28,6 +28,9 @@ export function ProfileHeader({ displayName, username, bio, avatarUrl }: Profile
     if (!normalizedAvatarUrl) {
       return false;
     }
+    if (normalizedAvatarUrl.startsWith("/uploads/avatars/")) {
+      return true;
+    }
     try {
       const url = new URL(normalizedAvatarUrl);
       if (url.protocol !== "http:" && url.protocol !== "https:") {

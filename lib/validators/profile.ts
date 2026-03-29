@@ -12,8 +12,23 @@ export const profileSchema = z.object({
   avatarUrl: z
     .string()
     .trim()
-    .url("Avatar URL must be a valid URL")
     .max(500)
+    .refine((value) => {
+      if (!value) {
+        return true;
+      }
+
+      if (value.startsWith("/uploads/avatars/")) {
+        return true;
+      }
+
+      try {
+        const url = new URL(value);
+        return url.protocol === "http:" || url.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }, "Avatar must be a valid URL or uploaded file path")
     .optional()
     .or(z.literal("")),
   themeId: z.string().trim().min(1),

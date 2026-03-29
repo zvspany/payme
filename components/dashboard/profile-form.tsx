@@ -34,6 +34,7 @@ export function ProfileForm({ initialValues, themes }: ProfileFormProps) {
   const [displayName, setDisplayName] = useState(initialValues.displayName);
   const [bio, setBio] = useState(initialValues.bio);
   const [avatarUrl, setAvatarUrl] = useState(initialValues.avatarUrl);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [themeId, setThemeId] = useState(initialValues.themeId);
   const [isPublic, setIsPublic] = useState(initialValues.isPublic);
 
@@ -46,6 +47,9 @@ export function ProfileForm({ initialValues, themes }: ProfileFormProps) {
     formData.set("displayName", displayName);
     formData.set("bio", bio);
     formData.set("avatarUrl", avatarUrl);
+    if (avatarFile) {
+      formData.set("avatarFile", avatarFile);
+    }
     formData.set("themeId", themeId);
     if (isPublic) {
       formData.set("isPublic", "on");
@@ -89,6 +93,15 @@ export function ProfileForm({ initialValues, themes }: ProfileFormProps) {
       <label className="space-y-2 text-sm">
         <span className="form-label">Bio</span>
         <Textarea value={bio} onChange={(event) => setBio(event.target.value)} maxLength={280} rows={4} />
+      </label>
+
+      <label className="space-y-2 text-sm">
+        <span className="form-label">Avatar Upload (PNG, JPG, WEBP, GIF, max 4MB)</span>
+        <Input
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          onChange={(event) => setAvatarFile(event.target.files?.[0] ?? null)}
+        />
       </label>
 
       <label className="space-y-2 text-sm">

@@ -49,6 +49,7 @@ npm run db:seed
 npm run dev
 ```
 6. Open `http://localhost:3000`
+7. Avatar uploads are stored in `public/uploads/avatars`.
 
 ## Environment Variables
 - `DATABASE_URL`: PostgreSQL connection URL
@@ -83,6 +84,7 @@ docker compose up --build -d
 4. Open `http://localhost:3000`.
 
 The app container runs `npm run db:migrate` before `npm run start`.
+Avatar uploads are persisted in the `avatar_uploads` Docker volume.
 
 ## Security Notes
 - All important writes are server-side validated (Zod + method-specific checks)
