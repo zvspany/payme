@@ -1,3 +1,10 @@
+> **Repository moved**
+>
+> Active development continues at:
+> https://git.zvcloud.net/zv/payme
+>
+> This GitHub repository is archived and no longer accepts issues or pull requests.
+
 # PayMe
 
 PayMe is an open source, self-hosted payment profile platform.
